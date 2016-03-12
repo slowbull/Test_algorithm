@@ -4,13 +4,13 @@
 % Param.opt  'sgd', 'sgd+mom'
 
 load('usps2');
-Param.max_epochs = 100;
+Param.max_epochs = 10000;
 Param.opt = 'sdca';
 Param.C = 1e2; 
 Param.lr = 5e-5;
 Param.step = 0;
 Param.eps = 0.01;
-Param.neighbor = 50;
+Param.neighbor = 50
 
 train_X = [train_X,ones(length(train_Y),1)];
 test_X = [test_X,ones(length(test_Y),1)];

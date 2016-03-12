@@ -1,4 +1,4 @@
-function [ w ,obj] = svm_train( X ,Y, Param )
+function [ w ,obj] = svm_train_hinge( X ,Y, Param )
 %SVM Summary of this function goes here
 %   hinge loss function with L2 norm regularization.
 % function:
@@ -23,7 +23,6 @@ dual_w_old = dual_w;
 if strcmp(opt_method,'sdca')
   w = sum(repmat(Y',[d,1]).*repmat(dual_w',[d,1]).*X,2);
 end
-dual_w_old = dual_w;
 
 mom = zeros(d,1);
 beta = 0.5;
@@ -112,21 +111,23 @@ while epoch < max_epochs
             else
                 PG = G;
             end
+            
             if PG ~= 0 
                 QII = Y(index)*Y(index)*X(:,index)'*X(:,index);
-                dual_w_last(index) = dual_w(index);
+                dual_w_old(index) = dual_w(index);
                 dual_w(index) = min(max(dual_w(index)-G/QII,0),C);
                 w = w + (dual_w(index)-dual_w_old(index))*Y(index)*X(:,index);
             end
 
             if iter==1
-                tmp = norm(compute_obj(w,X,Y,C) - compute_dual_obj(dual_w,X,Y,C));
+                tmp = (compute_obj(w,X,Y,C) - compute_dual_obj(dual_w,X,Y,C))
                 if tmp < 1e-3  
                    epoch = intmax;
                    break;
                 end
-	    end
+            end
         end    
+        
         if step ~= 0
             lr = initial_lr/(1+iter+n*(epoch-1))^step;
         end
@@ -138,21 +139,21 @@ end
 end
 
 function obj = compute_obj(w,X,Y,C)
-obj = 0.5 * w'*w;
+obj = 0.5 * (w'*w);
 n = length(Y);
-obj = obj + C*sum(max(0, ones(1,n)-Y'.*(w'*X)));
+obj = obj + C * sum(max(0, ones(1,n)-Y'.*(w'*X)));
 end
 
 function obj = compute_dual_obj(dual_w,X,Y,C)
 Q = (Y*Y').*(X'*X);
-obj = 0.5*dual_w'*Q*dual_w - sum(dual_w); 
+obj = -0.5*dual_w'*Q*dual_w + sum(dual_w); 
 end
 
-function gradient = compute_gradient(w,X,Y,C);
-	    tmp = 1 - Y*w'*X;
-            if tmp <= 0 
-              gradient = w;
-            else 
-              gradient = w - C * Y*X;
-            end
+function gradient = compute_gradient(w,X,Y,C)
+tmp = 1 - Y*w'*X;
+if tmp <= 0
+    gradient = w;
+else
+    gradient = w - C * Y*X;
+end
 end
