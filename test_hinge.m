@@ -4,10 +4,10 @@
 % Param.opt  'sgd', 'sgd+mom'
 
 load('usps2');
-Param.max_epochs = 1000;
+Param.max_epochs = 100;
 Param.opt = 'acc_svrg';
 Param.C = 1e2; 
-Param.lr = 5e-5;
+Param.lr = 1e-5;
 Param.step = 0;
 Param.eps = 0.01;
 Param.neighbor = 50

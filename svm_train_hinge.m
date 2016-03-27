@@ -16,7 +16,7 @@ step = Param.step;
 
 epoch = 1;
 [d,n] = size(X);
-w = rand(d,1);
+w = zeros(d,1);
 
 dual_w = rand(n,1);
 dual_w_old = dual_w;

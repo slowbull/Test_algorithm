@@ -6,14 +6,14 @@
 % load('usps2');
 
 % create Data.
-d = 100;
-n = 1000;
+d = 10000;
+n = 100000;
 X = rand(d,n);
 Y = rand(n,1);
 w_opt = inv(X*X'+eye(d))*X*Y;
 obj_opt = sum((w_opt'*X - Y').^2) + 0.5*(w_opt'*w_opt);
 
-max_epochs = 50;
+max_epochs = 5;
 
 %% sgd
 Param.max_epochs = max_epochs;

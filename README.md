@@ -8,3 +8,4 @@ test optimization algorithms
 5. Neighbor SAGA
 6. ADAM
 7. SDCA
+8. Accelerated SVRG
