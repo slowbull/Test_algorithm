@@ -42,6 +42,7 @@ while epoch < max_epochs
             gradient = compute_gradient(w,X(:,index),Y(index),C);
             mom = beta * mom + lr * gradient;
             w = w - mom;
+
         elseif strcmp(opt_method,'svrg')
             % full gradient compute
             if iter == 1
@@ -57,6 +58,33 @@ while epoch < max_epochs
             gradient = compute_gradient(w,X(:,index),Y(index),C);
             hat_gradient = compute_gradient(hat_w,X(:,index),Y(index),C);
             w = w - lr * (gradient - hat_gradient  + gradient_full);
+
+        elseif strcmp(opt_method,'acc_svrg')
+            % full gradient compute
+	    if epoch == 1
+		tmp_y = w;
+		tmp_z = w;
+		t1 = Param.asvrg_t1;
+		t2 = Param.asvrg_t2;
+		lr_z = lr/t1;
+            end
+
+            if iter == 1
+                hat_w = w;
+                gradient_full = zeros(d,1);
+               for inner_iter = 1:n
+                   gradient = compute_gradient(w,X(:,inner_iter),Y(inner_iter),C);
+                   gradient_full = gradient_full + gradient;
+               end
+               gradient_full = gradient_full / n;
+            end
+            
+            gradient = compute_gradient(w,X(:,index),Y(index),C);
+            hat_gradient = compute_gradient(hat_w,X(:,index),Y(index),C);
+            tmp_y = w - lr * (gradient - hat_gradient  + gradient_full);
+            tmp_z = tmp_z - lr_z * (gradient - hat_gradient  + gradient_full);
+	    w = t1 * tmp_z + t2 * hat_w + (1-t1-t2) * tmp_y;
+
         elseif strcmp(opt_method,'saga')
             if epoch == 1 && iter == 1
                 for i_num  = 1:n
