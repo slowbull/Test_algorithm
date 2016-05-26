@@ -24,9 +24,16 @@ if strcmp(opt_method,'sdca')
   w = sum(repmat(Y',[d,1]).*repmat(dual_w',[d,1]).*X,2);
 end
 
+dual_alpha = rand(d,n);
+if strcmp(opt_method, 'dfsdca')
+    w = 1/(C*n) * sum(dual_alpha,2);
+end
+
 mom = zeros(d,1);
 beta = 0.5;
 alpha = repmat(w,[1,n]);
+obj(1) = compute_obj(w,X,Y,C);
+
 while epoch < max_epochs
     index_permutation = randperm(n);
     for iter = 1:n
@@ -126,14 +133,19 @@ while epoch < max_epochs
                    break;
                 end
             end
+        elseif strcmp(opt_method,'dfsdca')
+            gradient = compute_gradient(w,X(:,index),Y(index),C);
+            tmp = gradient + dual_alpha(:,index);
+            dual_alpha(:,index) = dual_alpha(:,index) - lr*C*n*tmp;
+            w = w - lr*gradient;
         end    
         
         if step ~= 0
             lr = initial_lr/(1+iter+n*(epoch-1))^step;
         end
     end
-    obj(epoch) = compute_obj(w,X,Y,C);
-    fprintf('epoch: %d, obj: %e\n',epoch, obj(epoch));
+    obj(epoch+1) = compute_obj(w,X,Y,C);
+    fprintf('epoch: %d, obj: %e\n',epoch, obj(epoch+1));
 epoch = epoch +1;
 end
 end
